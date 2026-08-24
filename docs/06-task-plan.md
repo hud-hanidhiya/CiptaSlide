@@ -1,26 +1,55 @@
-# Task Plan — CiptaSlide — Dari ide menjadi presentasi. AI PPTX Generator (Web App)
+# Task Plan — CiptaSlide (eksekusi Stage 1–6)
 
-| # | Task | Target file (path eksplisit) | Done criteria | Status |
-|---|---|---|---|:---:|
-| 1 | Init project, deps (termasuk `express`, tanpa `commander`), tsconfig | `package.json`, `tsconfig.json` | `npm install` sukses, `tsc --noEmit` tanpa error | ☐ |
-| 2 | Setup `.env.example` + `.gitignore` (exclude `.env`) | `.env.example`, `.gitignore` | `.env` tidak ter-track git; `.env.example` berisi placeholder `API_BASE_URL`/`API_KEY`/`MODEL_NAME`/`PORT` | ☐ |
-| 3 | Definisikan Zod schema `Deck`/`Slide`/`Block` | `src/schema/deck.schema.ts` | Type-check pass; `Deck` type ter-export via `z.infer` | ☐ |
-| 4 | Unit test schema: valid, field wajib hilang, chart pie nilai negatif ditolak | `tests/schema.test.ts` | Semua test case lulus | ☐ |
-| 5 | `loadLlmConfig()` — load & validasi env, fail-fast kalau kosong; `HOST` eksplisit `127.0.0.1` | `src/config.ts` | Unit test: env lengkap → config; env kosong → throw jelas | ☐ |
-| 6 | Wrapper OpenAI-compatible client + `generateDeckJson()` | `src/llm/client.ts` | Type-check pass, signature sesuai `04a` §2 | ☐ |
-| 7 | System/user/revisi/repair prompt builder | `src/llm/promptBuilder.ts` | Unit test: prompt mengandung constraint kunci (no `•` literal, max 6 blocks, JSON-only); prompt revisi menyertakan `Deck` lama + instruksi | ☐ |
-| 8 | `planDeck()` — retry/repair loop max 3x + custom error class | `src/planner/contentPlanner.ts` | Unit test (mocked LLM): valid langsung, repair sukses attempt-2, gagal 3x → throw | ☐ |
-| 9 | `reviseDeck()` — revisi berbasis `Deck` lama + instruksi, pakai repair-loop yang sama | `src/planner/contentPlanner.ts` | Unit test (mocked LLM): revisi menghasilkan `Deck` berbeda dari input, tetap lolos repair-loop max 3x | ☐ |
-| 10 | Renderer `titleBullets` (dipakai juga untuk title/sectionDivider/closing) | `src/render/layoutRenderers/titleBullets.ts` | Manual render test: title+bullet tampil benar | ☐ |
-| 11 | Renderer `twoColumn` (dipakai sementara untuk imageText) | `src/render/layoutRenderers/twoColumn.ts` | Manual render test: 2 kolom tidak overlap | ☐ |
-| 12 | Renderer `chart` — guard nilai negatif pada pie/doughnut sebelum `addChart()` | `src/render/layoutRenderers/chart.ts` | Unit test: values negatif pada pie → throw sebelum render | ☐ |
-| 13 | Lookup table layout + `renderDeck()`, `LAYOUT_WIDE` sebelum `addSlide()` pertama, nama file unik per giliran | `src/render/pptxRenderer.ts` | Static check: semua 7 layout type punya renderer terdaftar | ☐ |
-| 14 | `validatePptxStructure()` — validasi struktur ZIP/XML dasar | `src/qa/validator.ts` | Fixture test: file valid → `[]`; file dirusak → error terdeteksi | ☐ |
-| 15 | `sessionStore.ts` — in-memory `Map<sessionId, SessionState>`, `getOrCreate`/`update` | `src/server/sessionStore.ts` | Unit test: sesi baru → state kosong; update → state ter-patch benar | ☐ |
-| 16 | Route `POST /api/chat` — orkestrasi planner→renderer→validator per giliran (initial vs revisi) | `src/server/routes/chat.ts` | Integration test (mocked LLM): giliran initial & revisi sama-sama hasilkan `downloadUrl` | ☐ |
-| 17 | Setup Express app — static `public/` & `output/`, mount route, `listen(PORT, "127.0.0.1")` | `src/server/app.ts` | Manual check: server jalan, tidak bisa diakses dari luar localhost | ☐ |
-| 18 | Frontend chat — markup, styling, dan JS (fetch, render bubble, link download, disable input saat loading) | `public/index.html`, `public/styles.css`, `public/chat.js` | Manual check di browser: kirim brief → balasan + link muncul; kirim revisi → balasan baru muncul tanpa hilangkan riwayat | ☐ |
-| 19 | Custom error class (`LlmTransientError`, `LlmSchemaError`, `UserInputError`, `SessionNotFoundError`) dipakai konsisten, dipetakan ke HTTP status di route | `src/server/routes/chat.ts`, `src/planner/contentPlanner.ts` | Unit test: tiap error class → HTTP status dan pesan JSON berbeda dan jelas | ☐ |
-| 20 | Logging minimal per-stage (attempt count, durasi, sessionId) | `src/server/routes/chat.ts` | Manual check: log per stage terbaca jelas di terminal server | ☐ |
-| 21 | Manual smoke test end-to-end lewat browser dengan API key asli: brief awal + minimal satu revisi | N/A (manual) | File `.pptx` dari brief nyata dan hasil revisi sama-sama terbuka tanpa "repair needed" di PowerPoint/LibreOffice | ☐ |
-| 22 | README dasar (cara jalankan server lokal) + `.env.example` final | `README.md`, `.env.example` | Proyek bisa di-setup ulang dari nol di mesin lain hanya dari README | ☐ |
+Status eksekusi work order dari `05-master-prompt.md`. Semua path relatif ke root repo.
+
+## Keputusan desain yang diambil saat eksekusi
+
+| # | Keputusan | Alasan | Referensi |
+|---|---|---|---|
+| 1 | Endpoint tambahan `POST /api/sessions` untuk membuat sessionId | Tanpa ini, "sesi baru" vs "sesi mati (server restart)" tidak bisa dibedakan; spec §Error handling menuntut sessionId tak dikenal → HTTP 404, frontend arahkan mulai chat baru | `03-spec.md`, `04a-implementation-plan.md` §5 |
+| 2 | Tidak ada TTL sesi di v1 | Sesi hidup selama proses server hidup — jawaban pertanyaan terbuka spec, pilihan paling sederhana untuk tool single-user | `03-spec.md` §Pertanyaan terbuka |
+| 3 | Jalankan TS via `tsc` build → `node dist/` (+ `node --watch` untuk dev) | Tanpa menambah dependency baru (`tsx`/`nodemon` tidak masuk daftar stack) | Aturan #5 |
+| 4 | Cross-field chart checks di level `DeckSchema.superRefine` | Discriminated union Zod v3 hanya menerima ZodObject polos sebagai opsi (ZodEffects tidak bisa) | — |
+| 5 | Error teknis LLM (timeout/429/network) ikut repair-loop dengan batas attempt yang sama (3×) | Spec §Error handling mengizinkan retry otomatis "dalam batas repair-loop"; habis → HTTP 503 | `03-spec.md` |
+| 6 | DI opsional di route chat (`store`, `overrides`) supaya integration test bisa mock LLM/validator tanpa monkey-patching | Test checklist docs/04a §5 butuh skenario file corrupt & schema invalid persisten | `04a-implementation-plan.md` §5 |
+
+## File yang dibuat
+
+- Scaffold: `package.json`, `tsconfig.json`, `vitest.config.ts`, `.gitignore`, `.env.example`
+- Core: `src/schema/deck.schema.ts`, `src/config.ts`, `src/errors.ts`, `src/llm/client.ts`, `src/llm/promptBuilder.ts`, `src/planner/contentPlanner.ts`
+- Render/QA: `src/render/pptxRenderer.ts`, `src/render/layoutRenderers/{titleBullets,twoColumn,chart}.ts`, `src/qa/validator.ts`
+- Server: `src/server/app.ts`, `src/server/sessionStore.ts`, `src/server/routes/chat.ts`, `src/server/routes/sessions.ts`
+- Frontend: `public/index.html`, `public/chat.js`, `public/styles.css`
+- Tests: `tests/schema.test.ts`, `tests/contentPlanner.test.ts`, `tests/renderer.test.ts`, `tests/config.test.ts`, `tests/chatRoute.test.ts`
+
+## Checklist verifikasi docs/04a §5
+
+- [x] `Deck.safeParse()` menolak semua kasus invalid terdaftar (schema.test)
+- [x] Repair-loop pulih dari 1x kegagalan — planDeck & reviseDeck (contentPlanner.test)
+- [x] Repair-loop throw setelah 3x gagal (schema → LlmSchemaError; teknis → LlmTransientError)
+- [x] Setiap LayoutType punya renderer terdaftar + dirender valid (renderer.test, loop semua layout)
+- [x] `validatePptxStructure()` mendeteksi file corrupt sengaja-dirusak
+- [x] `/api/chat` initial → downloadUrl valid (chatRoute.test, mocked LLM, validator asli)
+- [x] `/api/chat` revisi → Deck baru berbeda + file baru di sesi sama
+- [x] sessionId tak dikenal → HTTP 404 `session_tidak_dikenal`
+- [ ] End-to-end manual: brief → .pptx terbuka mulus di PowerPoint/LibreOffice + 1 revisi — **perlu API key asli operator** (jalankan `npm start`)
+- [x] Env var kosong → server gagal start dengan pesan jelas
+- [x] Server tidak bisa diakses dari luar 127.0.0.1 (diverifikasi via LAN IP machine saat smoke test)
+
+## Hasil verifikasi otomatis (terakhir dijalankan)
+
+- `npx tsc --noEmit`: lulus tanpa error
+- `npm run build`: lulus, entry point `dist/server/app.js`
+- `npm test`: **110 test lulus / 0 gagal** (5 file test)
+- Smoke test manual: fail-fast env kosong OK; static frontend 200; `/api/sessions` 201; bind 127.0.0.1 terbukti (LAN IP ditolak); LLM mati → HTTP 503 pesan jelas
+
+## Hasil code review (6 track) & perbaikan yang diterapkan
+
+- [fixed] Klasifikasi error LLM: penolakan permanen provider (HTTP 4xx kecuali 408/429, mis. API key salah) kini gagal cepat sebagai `LlmConfigError` → HTTP 400 `llm_config_salah`, tidak lagi dibuang-buang ke repair-loop dan dilaporkan 503 (src/llm/client.ts `isPermanentLlmHttpError`)
+- [fixed] Dead code dihapus: `completeJson` (interface+impl), alias `UsageLogger`, `SessionStore.size()`, field `RenderResult.outPath`
+- [ditolak setelah re-check] Dugaan duplikasi konstanta estimasi tinggi teks titleBullets vs twoColumn — konstanta berbeda karena lebar area berbeda (kolom vs full width), bukan drift
+
+## Debug log pptxgenjs (progressif)
+
+- (awal) Hex warna tanpa `#`; `pres.layout = "LAYOUT_WIDE"` wajib sebelum `addSlide()` pertama; satu instance `pptxgen()` per giliran render.
+- Belum ditemukan gotcha lain pada trial render semua 7 layout (semua lolos validasi struktural).

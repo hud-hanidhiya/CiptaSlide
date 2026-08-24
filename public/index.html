@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CiptaSlide — Dari ide menjadi presentasi</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header>
+    <h1>CiptaSlide</h1>
+    <span class="tagline">Dari ide menjadi presentasi — brief di chat, unduh .pptx</span>
+  </header>
+
+  <main id="chat-window" aria-live="polite"></main>
+
+  <footer>
+    <form id="chat-form">
+      <textarea
+        id="chat-input"
+        rows="2"
+        placeholder="Tulis brief presentasi… (mis. 'Deck 6 slide pitch produk kopi susu literan untuk investor')"
+        autocomplete="off"
+      ></textarea>
+      <button id="send-btn" type="submit">Kirim</button>
+    </form>
+    <p class="hint">Enter = kirim · Shift+Enter = baris baru. Sesi hilang jika server di-restart — cukup ketik ulang brief.</p>
+  </footer>
+
+  <script src="/chat.js"></script>
+</body>
+</html>

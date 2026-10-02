@@ -1,0 +1,172 @@
+{
+  "widthPx": 1279.968,
+  "heightPx": 720,
+  "slides": [
+    {
+      "background": "#FFFFFF",
+      "elements": [
+        {
+          "type": "text",
+          "sourceTag": "h1",
+          "box": {
+            "x": 40,
+            "y": 61,
+            "width": 1199.968,
+            "height": 38.4
+          },
+          "style": {
+            "fontFamily": "Arial",
+            "fontSizePx": 32,
+            "bold": true,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": null,
+            "textAlign": "left",
+            "bullet": null,
+            "listIndex": null
+          },
+          "text": "Kenapa kami"
+        },
+        {
+          "type": "shape",
+          "sourceTag": "div",
+          "box": {
+            "x": 40,
+            "y": 120.4,
+            "width": 288,
+            "height": 75.2
+          },
+          "style": {
+            "fontFamily": "Arial",
+            "fontSizePx": 16,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": "#f4f4f5",
+            "textAlign": "left",
+            "bullet": null,
+            "listIndex": null
+          },
+          "text": ""
+        },
+        {
+          "type": "text",
+          "sourceTag": "h2",
+          "box": {
+            "x": 56,
+            "y": 136.4,
+            "width": 256,
+            "height": 24
+          },
+          "style": {
+            "fontFamily": "Arial",
+            "fontSizePx": 20,
+            "bold": true,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": null,
+            "textAlign": "left",
+            "bullet": null,
+            "listIndex": null
+          },
+          "text": "Cepat"
+        },
+        {
+          "type": "text",
+          "sourceTag": "p",
+          "box": {
+            "x": 56,
+            "y": 160.4,
+            "width": 256,
+            "height": 19.2
+          },
+          "style": {
+            "fontFamily": "Arial",
+            "fontSizePx": 16,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": null,
+            "textAlign": "left",
+            "bullet": null,
+            "listIndex": null
+          },
+          "text": "Ringkas dan mudah dipakai."
+        },
+        {
+          "type": "shape",
+          "sourceTag": "div",
+          "box": {
+            "x": 352,
+            "y": 120.4,
+            "width": 288,
+            "height": 75.2
+          },
+          "style": {
+            "fontFamily": "Arial",
+            "fontSizePx": 16,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": "#f4f4f5",
+            "textAlign": "left",
+            "bullet": null,
+            "listIndex": null
+          },
+          "text": ""
+        },
+        {
+          "type": "text",
+          "sourceTag": "h2",
+          "box": {
+            "x": 368,
+            "y": 136.4,
+            "width": 256,
+            "height": 24
+          },
+          "style": {
+            "fontFamily": "Arial",
+            "fontSizePx": 20,
+            "bold": true,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": null,
+            "textAlign": "left",
+            "bullet": null,
+            "listIndex": null
+          },
+          "text": "Murah"
+        },
+        {
+          "type": "text",
+          "sourceTag": "p",
+          "box": {
+            "x": 368,
+            "y": 160.4,
+            "width": 256,
+            "height": 19.2
+          },
+          "style": {
+            "fontFamily": "Arial",
+            "fontSizePx": 16,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": null,
+            "textAlign": "left",
+            "bullet": null,
+            "listIndex": null
+          },
+          "text": "Tanpa biaya langganan."
+        }
+      ]
+    }
+  ]
+}

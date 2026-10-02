@@ -1,0 +1,103 @@
+{
+  "widthPx": 1279.968,
+  "heightPx": 720,
+  "slides": [
+    {
+      "background": "#FFFFFF",
+      "elements": [
+        {
+          "type": "text",
+          "sourceTag": "h1",
+          "box": {
+            "x": 40,
+            "y": 61,
+            "width": 1199.968,
+            "height": 38.4
+          },
+          "style": {
+            "fontFamily": "Georgia",
+            "fontSizePx": 32,
+            "bold": true,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": null,
+            "textAlign": "left",
+            "bullet": null,
+            "listIndex": null
+          },
+          "text": "Judul Utama"
+        },
+        {
+          "type": "text",
+          "sourceTag": "p",
+          "box": {
+            "x": 40,
+            "y": 120.4,
+            "width": 1199.968,
+            "height": 19.2
+          },
+          "style": {
+            "fontFamily": "Georgia",
+            "fontSizePx": 16,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": null,
+            "textAlign": "left",
+            "bullet": null,
+            "listIndex": null
+          },
+          "text": "Paragraf pembuka yang cukup panjang untuk diuji."
+        },
+        {
+          "type": "text",
+          "sourceTag": "li",
+          "box": {
+            "x": 40,
+            "y": 155.6,
+            "width": 1199.968,
+            "height": 19.2
+          },
+          "style": {
+            "fontFamily": "Georgia",
+            "fontSizePx": 16,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": null,
+            "textAlign": "left",
+            "bullet": "•",
+            "listIndex": null
+          },
+          "text": "Poin pertama"
+        },
+        {
+          "type": "text",
+          "sourceTag": "li",
+          "box": {
+            "x": 40,
+            "y": 174.8,
+            "width": 1199.968,
+            "height": 19.2
+          },
+          "style": {
+            "fontFamily": "Georgia",
+            "fontSizePx": 16,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": null,
+            "textAlign": "left",
+            "bullet": "•",
+            "listIndex": null
+          },
+          "text": "Poin kedua"
+        }
+      ]
+    }
+  ]
+}

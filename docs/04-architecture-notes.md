@@ -1,13 +1,19 @@
 # Architecture Notes — CiptaSlide — Dari ide menjadi presentasi. AI PPTX Generator (Web App)
 
+> **Catatan revisi (HTML -> PPTX).** Dokumen ini menjelaskan jalur **chat/LLM**.
+> Jalur kedua, **HTML -> PPTX**, punya arsitektur sendiri yang berlapis:
+> sanitize -> cascade -> layout -> IR -> pptxgenjs. Lihat
+> **[docs/10-html-to-pptx-engine.md](10-html-to-pptx-engine.md)**.
+
 ## Stack & alasannya
 - **TypeScript + Node.js ≥ 20** — type-safety penting karena kontrak `Deck` jadi jembatan antara output LLM yang tidak terprediksi dan renderer yang deterministik.
-- **`express`** — server HTTP minimal untuk menyajikan frontend statis (`public/`) dan satu endpoint API chat (`/api/chat`); dipilih karena paling sederhana untuk kebutuhan single-user lokal, tidak butuh fitur framework yang lebih berat.
+- **`express`** — server HTTP minimal untuk menyajikan frontend statis (`public/`) dan endpoint API (`/api/chat`, `/api/v1/*`); dipilih karena paling sederhana untuk kebutuhan single-user lokal, tidak butuh fitur framework yang lebih berat.
 - **`openai` SDK** — dipakai bukan cuma untuk OpenAI, tapi karena hampir semua provider (DeepSeek, Gemini compat layer, Ollama lokal) menyediakan endpoint kompatibel `/chat/completions`. Cukup ganti `baseURL`.
 - **`zod`** — validasi runtime + type inference sekaligus; krusial karena LLM output tidak bisa dipercaya begitu saja walau providernya "mendukung" structured output.
-- **`pptxgenjs`** — renderer OOXML tingkat tinggi, tidak perlu manipulasi XML manual untuk kasus generate-dari-nol.
+- **`pptxgenjs`** — renderer OOXML tingkat tinggi, tidak perlu manipulasi XML manual untuk kasus generate-dari-nol. Dipakai oleh **kedua** jalur.
 - **`jszip`** — untuk QA struktural (`.pptx` adalah ZIP), dan nanti dipakai lagi kalau mode template (v2) butuh baca/tulis XML slide existing.
-- **Frontend polos (HTML/CSS/JS, tanpa framework/build tool)** — cukup untuk satu halaman chat sederhana; menghindari kompleksitas build pipeline untuk tool pribadi yang scope-nya kecil. Disajikan langsung lewat `express.static`.
+- **`parse5`** — parser HTML sesuai spesifikasi (WHATWG). Dipakai hanya untuk *tokenizing*: pipeline ini tidak pernah membutuhkan DOM hidup, jadi tidak perlu jsdom yang jauh lebih berat dan sudah punya parser bawaan.
+- **Frontend polos (HTML/CSS/JS, tanpa framework/build tool)** — cukup untuk halaman chat dan workbench konverter; menghindari kompleksitas build pipeline untuk tool pribadi. Disajikan langsung lewat `express.static`.
 
 **Dependency yang dihapus dari versi CLI:** `commander` (parsing argumen CLI) — tidak relevan lagi karena tidak ada lagi entry point command-line.
 
@@ -15,10 +21,25 @@
 ```
 CiptaSlide/
   src/
+    shared/                    # [HTML->PPTX] satuan, warna, tipe IR
+      units.ts, color.ts, ir.ts
+    html/                      # [HTML->PPTX] sanitizer whitelist + parser parse5
+      dom.ts, sanitize.ts, pptxAttributes.ts
+    css/                       # [HTML->PPTX] CSS subset engine
+      values.ts, parse.ts, selector.ts, cascade.ts, metrics.ts
+    layout/                    # [HTML->PPTX] block/inline/flex/table -> box px
+      layoutEngine.ts
+    map/                       # [HTML->PPTX] box -> SlideElement
+      domToIr.ts
+    assets/                    # [HTML->PPTX] <img src> -> data URI
+      resolver.ts
+    convert/                   # [HTML->PPTX] orkestrasi pipeline + laporan
+      options.ts, pipeline.ts
     server/
       app.ts                # setup Express app, static serving, mount routes
       routes/
         chat.ts              # POST /api/chat — orkestrasi planner→renderer→validator per giliran
+        html2pptx.ts         # POST /api/v1/{convert,preview,validate}, GET /api/v1/health
       sessionStore.ts        # Map<sessionId, SessionState> in-memory
     config.ts                 # load & validasi env var (API_BASE_URL, API_KEY, MODEL_NAME, PORT)
     llm/
@@ -29,21 +50,25 @@ CiptaSlide/
     planner/
       contentPlanner.ts       # planDeck() untuk initial, reviseDeck() untuk revisi — sama-sama pakai repair-loop max 3x
     render/
-      pptxRenderer.ts
+      pptxRenderer.ts         # [chat] Deck -> pptx
       layoutRenderers/
         titleBullets.ts
         twoColumn.ts
         chart.ts
+      htmlPptxWriter.ts       # [HTML->PPTX] IR -> pptx (fungsi murni dari IR)
     qa/
-      validator.ts
+      validator.ts            # dipakai kedua jalur
   public/
     index.html                 # markup chat UI
     chat.js                    # fetch ke /api/chat, render bubble chat + link download
     styles.css
+    html/                      # workbench HTML -> PPTX (editor, preview sandbox, report)
+      index.html, app.js, styles.css
   tests/
-    schema.test.ts
-    renderer.test.ts
-    contentPlanner.test.ts
+    schema.test.ts, renderer.test.ts, contentPlanner.test.ts, chatRoute.test.ts
+    units.test.ts, sanitize.test.ts, cssEngine.test.ts, layout.test.ts
+    domToIr.test.ts, golden.test.ts, pipeline.test.ts, html2pptxRoute.test.ts
+    fixtures/                  # golden file: input.html + expected.json
   docs/
   output/                       # file .pptx hasil render, disajikan lewat express.static juga
   .env.example

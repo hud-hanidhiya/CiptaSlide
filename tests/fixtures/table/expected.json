@@ -1,0 +1,57 @@
+{
+  "widthPx": 1279.968,
+  "heightPx": 720,
+  "slides": [
+    {
+      "background": "#FFFFFF",
+      "elements": [
+        {
+          "type": "text",
+          "sourceTag": "h1",
+          "box": {
+            "x": 40,
+            "y": 61,
+            "width": 1199.968,
+            "height": 38.4
+          },
+          "style": {
+            "fontFamily": "Arial",
+            "fontSizePx": 32,
+            "bold": true,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": null,
+            "textAlign": "left",
+            "bullet": null,
+            "listIndex": null
+          },
+          "text": "Daftar harga"
+        },
+        {
+          "type": "table",
+          "sourceTag": "table",
+          "box": {
+            "x": 40,
+            "y": 120.4,
+            "width": 600,
+            "height": 53.76
+          },
+          "style": {
+            "fontFamily": "Arial",
+            "fontSizePx": 16,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "color": "#000000",
+            "background": null,
+            "textAlign": "left",
+            "bullet": null,
+            "listIndex": null
+          },
+          "text": ""
+        }
+      ]
+    }
+  ]
+}

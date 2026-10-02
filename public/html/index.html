@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CiptaSlide — HTML → PPTX</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/html/styles.css" />
+</head>
+<body class="wb-page">
+
+  <header>
+    <h1>HTML → PPTX</h1>
+    <span class="tagline">Tulis HTML di kiri, pratinjau slide di kanan, unduh .pptx</span>
+    <a class="wb-nav" href="/">← Kembali ke chat</a>
+  </header>
+
+  <main class="wb">
+    <!-- Pane kiri: editor -->
+    <section class="wb-pane">
+      <div class="wb-pane-head">
+        <h2 class="wb-pane-title">Editor HTML</h2>
+        <div class="wb-toolbar">
+          <button type="button" class="btn ghost" id="clear-btn">Clear</button>
+          <span class="wb-toolbar-sep" aria-hidden="true"></span>
+          <span class="wb-toolbar-label">Load template</span>
+          <button type="button" class="btn ghost" data-template="simple">Simple</button>
+          <button type="button" class="btn ghost" data-template="twoSlides">Two Slides</button>
+          <button type="button" class="btn ghost" data-template="cards">Cards</button>
+          <button type="button" class="btn ghost" data-template="data">Data</button>
+        </div>
+      </div>
+      <textarea
+        id="html-input"
+        class="wb-editor"
+        spellcheck="false"
+        autocomplete="off"
+        placeholder="&lt;h1&gt;Judul&lt;/h1&gt;&#10;&lt;p&gt;Isi slide…&lt;/p&gt;"
+        aria-label="Editor HTML sumber"
+      ></textarea>
+    </section>
+
+    <!-- Pane kanan: preview + report -->
+    <section class="wb-pane">
+      <div class="wb-tabs" role="tablist" aria-label="Hasil konversi">
+        <button type="button" class="wb-tab" id="tab-preview" role="tab"
+                aria-selected="true" aria-controls="panel-preview">Preview</button>
+        <button type="button" class="wb-tab" id="tab-report" role="tab"
+                aria-selected="false" aria-controls="panel-report">Report</button>
+        <span class="wb-tab-meta" id="pane-meta">siap</span>
+      </div>
+
+      <div class="wb-panel" id="panel-preview" role="tabpanel" aria-labelledby="tab-preview">
+        <div class="wb-stage" id="stage">
+          <div class="wb-stage-fit" id="stage-fit">
+            <!--
+              sandbox="" (bukan allow-same-origin, tanpa izin script): script, form,
+              navigasi top-level, dan popup mati. HTML pengguna hanya bisa menghasilkan piksel.
+            -->
+            <iframe
+              id="preview-frame"
+              class="wb-frame"
+              title="Pratinjau slide"
+              sandbox=""
+              referrerpolicy="no-referrer"
+              scrolling="no"
+            ></iframe>
+          </div>
+          <p class="wb-stage-empty" id="stage-empty">Preview muncul setelah HTML diisi.</p>
+        </div>
+        <div class="wb-panel-foot">
+          <div class="wb-switcher" id="slide-switcher" role="group" aria-label="Pilih slide" hidden></div>
+          <span class="wb-size" id="size-label">—</span>
+        </div>
+      </div>
+
+      <div class="wb-panel wb-panel-report" id="panel-report" role="tabpanel" aria-labelledby="tab-report" hidden>
+        <div class="wb-report-head">
+          <span class="wb-chip" id="mode-chip">mode: —</span>
+          <span class="wb-chip" id="duration-chip">—</span>
+          <span class="wb-chip" id="status-chip">belum divalidasi</span>
+        </div>
+
+        <table class="wb-stats">
+          <caption class="wb-visually-hidden">Statistik konversi</caption>
+          <tbody>
+            <tr><th scope="row">Slides</th><td id="stat-slides">0</td></tr>
+            <tr><th scope="row">Elements</th><td id="stat-elements">0</td></tr>
+            <tr><th scope="row">Converted</th><td id="stat-converted">0</td></tr>
+            <tr><th scope="row">Fallback</th><td id="stat-fallback">0</td></tr>
+            <tr class="wb-row-warning"><th scope="row">Warnings</th><td id="stat-warnings">0</td></tr>
+            <tr class="wb-row-error"><th scope="row">Errors</th><td id="stat-errors">0</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="wb-sub">Diagnostics</h3>
+        <ul class="wb-diagnostics" id="diagnostics">
+          <li class="wb-diag-empty">Belum ada hasil validasi.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wb-footer">
+    <div class="wb-settings">
+      <fieldset class="wb-field">
+        <legend>Format</legend>
+        <div class="wb-radios">
+          <label><input type="radio" name="format" value="16:9" checked /> 16:9</label>
+          <label><input type="radio" name="format" value="4:3" /> 4:3</label>
+          <label><input type="radio" name="format" value="custom" /> Custom</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="wb-field">
+        <legend>Custom size (inci)</legend>
+        <div class="wb-sizes">
+          <label for="custom-width">W</label>
+          <input type="number" id="custom-width" min="1" max="100" step="0.001" value="13.333" />
+          <label for="custom-height">H</label>
+          <input type="number" id="custom-height" min="1" max="100" step="0.001" value="7.5" />
+        </div>
+      </fieldset>
+
+      <fieldset class="wb-field">
+        <legend>Background</legend>
+        <input type="color" id="bg-color" value="#ffffff" aria-label="Warna background slide" />
+      </fieldset>
+
+      <fieldset class="wb-field">
+        <legend>Default font</legend>
+        <select id="font-family">
+          <option value="Arial">Arial</option>
+          <option value="Calibri">Calibri</option>
+          <option value="Aptos">Aptos</option>
+          <option value="Helvetica">Helvetica</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Verdana">Verdana</option>
+        </select>
+      </fieldset>
+
+      <fieldset class="wb-field">
+        <legend>Mode</legend>
+        <div class="wb-radios">
+          <label><input type="radio" name="mode" value="editable" checked /> editable</label>
+          <label><input type="radio" name="mode" value="pixel" /> pixel</label>
+          <label><input type="radio" name="mode" value="hybrid" /> hybrid</label>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="wb-actions">
+      <p class="wb-status" id="status-line" role="status" aria-live="polite"></p>
+      <a class="btn ghost wb-download" id="download-link" hidden>
+        <span id="download-label">Unduh .pptx</span>
+      </a>
+      <button type="button" class="btn ghost" id="validate-btn">Validate</button>
+      <button type="button" class="btn primary" id="convert-btn">Convert to PPTX</button>
+    </div>
+  </footer>
+
+  <script src="/html/app.js"></script>
+</body>
+</html>
